@@ -10,7 +10,7 @@
             v-if="mess.event === 'connection'"
             class="messages__body-message message message--connected"
         >
-          {{ mess.username }} присоединился к чату
+          <span class="message__title--connected">{{ mess.username }}</span> присоединился к чату
         </div>
         <div
             v-else-if="mess.event === 'connection-closed'"
@@ -92,6 +92,7 @@ const userStore = useUserStore()
 
 const messageText = ref('')
 const sendMessage = async () => {
+  if (!messageText.value) return
   const message = {
     username: userStore.user.username,
     message: messageText.value,
@@ -100,7 +101,7 @@ const sendMessage = async () => {
     time: new Date().getTime()
   }
   socket.send(JSON.stringify(message))
-  messageText.value = 'ывфлоалдфывоадофылвоалдылдфов'
+  messageText.value = ''
 }
 </script>
 
@@ -141,9 +142,19 @@ const sendMessage = async () => {
     &__title {
       max-width: 90px;
       text-overflow: ellipsis;
+      overflow-x: hidden;
+      white-space: nowrap;
       font-weight: 300;
       color: #06a94d;
       font-size: 14px;
+
+      &--connected {
+        max-width: 90px;
+        width: 90px;
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
     }
     &__body {
       max-width: 600px;
