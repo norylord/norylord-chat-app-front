@@ -92,7 +92,7 @@ const userStore = useUserStore()
 
 const messageText = ref('')
 const sendMessage = async () => {
-  if (!messageText.value) return
+  if (!messageText.value.trim().length) return
   const message = {
     username: userStore.user.username,
     message: messageText.value,
@@ -144,13 +144,12 @@ const sendMessage = async () => {
       text-overflow: ellipsis;
       overflow-x: hidden;
       white-space: nowrap;
-      font-weight: 300;
+      font-weight: 700;
       color: #06a94d;
       font-size: 14px;
 
       &--connected {
         max-width: 90px;
-        width: 90px;
         overflow-x: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -160,7 +159,7 @@ const sendMessage = async () => {
       max-width: 600px;
       word-break: break-word;
       background: #26834f;
-      font-weight: 300;
+      font-weight: 500;
       padding: 12px 20px;
       border-radius: 16px;
 
@@ -175,6 +174,10 @@ const sendMessage = async () => {
       text-align: end;
       .message__title {
         margin-left: auto;
+        color: #2f5eca;
+      }
+      .message__body {
+        background: #2f5eca;
       }
     }
     &--connected {
