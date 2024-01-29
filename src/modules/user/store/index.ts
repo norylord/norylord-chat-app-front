@@ -10,7 +10,7 @@ export const useUserStore = defineStore({
   id: 'user',
   state: (): IUserStore => ({
     user: {
-      username: '',
+      username: localStorage.getItem('username') ?? '',
       id: Date.now()
     }
   }),

@@ -10,6 +10,7 @@ export class LoginService implements ILoginService {
 
   async makeLogin (login: string) {
     this.store.user.username = login
+    localStorage.setItem('username', login)
   }
 
   isLogin = computed(() => {
