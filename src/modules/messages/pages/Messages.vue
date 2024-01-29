@@ -2,20 +2,26 @@
   <div class="messages">
     <div class="messages__body">
       <div
-        v-for="mess of messages"
-        :key="mess.id"
-        class="message-wrapper"
+          v-for="mess of messages"
+          :key="mess.id"
+          class="message-wrapper"
       >
         <div
-          v-if="mess.event === 'connection'"
-          class="messages__body-message message message--connected"
+            v-if="mess.event === 'connection'"
+            class="messages__body-message message message--connected"
         >
           {{ mess.username }} присоединился к чату
         </div>
         <div
-          v-else
-          class="messages__body-message message"
-          :class="{'message--owner': mess.username === userStore.user.username}"
+            v-else-if="mess.event === 'connection-closed'"
+            class="messages__body-message message message--connected"
+        >
+          {{ mess.username }} покинул чат
+        </div>
+        <div
+            v-else
+            class="messages__body-message message"
+            :class="{'message--owner': mess.username === userStore.user.username}"
         >
           <h3 class="message__title">
             {{ mess.username }}
@@ -27,12 +33,12 @@
       </div>
     </div>
     <form
-      class="messages__inputs"
-      @submit.prevent="sendMessage"
+        class="messages__inputs"
+        @submit.prevent="sendMessage"
     >
       <ui-input
-        v-model="messageText"
-        placeholder="Введите сообщение"
+          v-model="messageText"
+          placeholder="Введите сообщение"
       />
       <ui-button>
         Отправить
@@ -67,6 +73,12 @@ onMounted(() => {
   }
   socket.onclose = () => {
     console.log('soсket закрыт')
+    const connectionMessage = {
+      username: userStore.user.username,
+      id: Date.now(),
+      event: 'connection-close'
+    }
+    socket.send(JSON.stringify(connectionMessage))
   }
   socket.onerror = () => {
     console.log('soсket произошла ошибка')
@@ -88,21 +100,24 @@ const sendMessage = async () => {
     time: new Date().getTime()
   }
   socket.send(JSON.stringify(message))
-  messageText.value = ''
+  messageText.value = 'ывфлоалдфывоадофылвоалдылдфов'
 }
 </script>
 
 <style lang='scss'>
 .messages {
   width: 100%;
+  max-width: 1140px;
   height: 100%;
   padding: 24px;
   display: grid;
   grid-auto-rows:  1fr max-content;
   grid-template-columns: 1fr;
   &__body {
+    overflow-y: auto;
     width: 100%;
     height: 100%;
+    max-height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: start;
@@ -118,17 +133,21 @@ const sendMessage = async () => {
     display: flex;
     flex-direction: column;
     gap: 4px;
-    max-width: 70%;
+    max-width: 600px;
     width: fit-content;
     color: #ffffff;
     padding: 12px;
     border-radius: 8px;
     &__title {
+      max-width: 90px;
+      text-overflow: ellipsis;
       font-weight: 300;
       color: #06a94d;
       font-size: 14px;
     }
     &__body {
+      max-width: 600px;
+      word-break: break-word;
       background: #26834f;
       font-weight: 300;
       padding: 12px 20px;
@@ -143,6 +162,9 @@ const sendMessage = async () => {
     &--owner {
       margin-left: auto;
       text-align: end;
+      .message__title {
+        margin-left: auto;
+      }
     }
     &--connected {
       font-size: 12px;
@@ -152,7 +174,7 @@ const sendMessage = async () => {
       border-radius: 1000px;
       background: #d2d2d2;
       color: #426c7c;
-      margin: 0 auto;
+      margin: 10px auto;
     }
 
     &-wrapper {
