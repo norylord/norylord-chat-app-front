@@ -61,7 +61,7 @@ import { useSocketStore } from '@/modules/socket/store'
 
 const socketStore = useSocketStore()
 const messages = ref([])
-const socket = new WebSocket('ws://localhost:4000')
+const socket = new WebSocket('wss://norylord-chat-app.onrender.com')
 
 onMounted(() => {
   socket.onopen = () => {
