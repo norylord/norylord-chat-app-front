@@ -20,7 +20,10 @@
       {{ message.username }}
     </h3>
     <p class="message__body">
-      {{ message.message }}  <span class="message__body-time">{{ new Date().getHours() + ':' + new Date().getMinutes() }}</span>
+      {{ message.message }}  <span class="message__body-time">{{ new Date(message.time).toLocaleTimeString('ru-RU', {
+        hour: "2-digit",
+        minute: "2-digit"
+      }) }}</span>
     </p>
   </div>
 </template>
