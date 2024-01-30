@@ -19,18 +19,23 @@
     <h3 class="message__title">
       {{ message.username }}
     </h3>
-    <p class="message__body">
-      {{ message.message }}  <span class="message__body-time">{{ new Date(message.time).toLocaleTimeString('ru-RU', {
+    <div class="message__body">
+      <p
+        class="message__text"
+        v-html="parseText"
+      />
+      <span class="message__text-time">{{ new Date(message.time).toLocaleTimeString('ru-RU', {
         hour: "2-digit",
         minute: "2-digit"
       }) }}</span>
-    </p>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-
+import sanitizeHtml from 'sanitize-html'
 import { type TMessage } from '@/modules/messages/enitity/Messages.ts'
+import { computed } from 'vue'
 
 interface IProps {
   message: TMessage
@@ -38,6 +43,31 @@ interface IProps {
 }
 
 const props = defineProps<IProps>()
+
+const checkForURL = (value: string) => {
+  const links = value.match(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/)
+  if (links) return true
+  return false
+}
+
+const parseText = computed(() => {
+  let result = props.message.message
+  const links = result.match(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi)
+
+  if (links) {
+    links.forEach(link => {
+      console.log(link)
+      result = result.replace(link, `<a class="message__text--link" target="_blank" href="${link}">${link}</a>`)
+    })
+  }
+  return sanitizeHtml(result, {
+    allowedTags: ['a', 'img'],
+    allowedAttributes: {
+      a: ['class', 'href', 'target']
+    }
+  })
+})
+
 </script>
 
 <style lang='scss'>
@@ -49,7 +79,6 @@ const props = defineProps<IProps>()
   width: fit-content;
   color: #ffffff;
   padding: 12px;
-  border-radius: 8px;
   &__title {
     max-width: 90px;
     text-overflow: ellipsis;
@@ -67,6 +96,9 @@ const props = defineProps<IProps>()
     }
   }
   &__body {
+    display: flex;
+  }
+  &__text {
     max-width: 600px;
     word-break: break-word;
     background: #26834f;
@@ -75,9 +107,13 @@ const props = defineProps<IProps>()
     border-radius: 16px;
 
     &-time {
-      margin-left: auto;
-      padding-top: 10px;
+      margin: 0 12px;
+      margin-top: auto;
+      color: #26834f;
       font-size: 12px;
+    }
+    &--link {
+      color: #b3d3f1;
     }
   }
   &--owner {
@@ -87,8 +123,14 @@ const props = defineProps<IProps>()
       margin-left: auto;
       color: #2f5eca;
     }
+    .message__text {
+      background: #2f5eca !important;
+    }
     .message__body {
-      background: #2f5eca;
+      flex-direction: row-reverse;
+    }
+    .message__text-time {
+      color: #2f5eca !important;
     }
   }
   &--connected {
