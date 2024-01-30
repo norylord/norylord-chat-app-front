@@ -65,6 +65,12 @@ const socket = new WebSocket('wss://norylord-chat-app.onrender.com')
 
 onMounted(() => {
   socket.onopen = () => {
+    const connectionMessage = {
+      username: userStore.user.username,
+      id: Date.now(),
+      event: 'connection'
+    }
+    socket.send(JSON.stringify(connectionMessage))
     getMessages()
   }
   socket.onclose = () => {
