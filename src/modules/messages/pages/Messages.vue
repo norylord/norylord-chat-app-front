@@ -88,6 +88,7 @@ onMounted(() => {
   socket.onmessage = ({ data }) => {
     if (JSON.parse(data) instanceof Array) {
       messages.value = JSON.parse(data)
+      return
     }
     messages.value = [...messages.value, JSON.parse(data)]
     if (messageList && messageList.value) {
