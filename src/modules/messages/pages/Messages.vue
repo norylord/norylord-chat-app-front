@@ -1,10 +1,12 @@
 <template>
   <div class="messages">
-    <div class="messages__body">
+    <div class="messages__body" ref="messageList">
+      <TransitionGroup name="list">
       <div
           v-for="mess of messages"
           :key="mess.id"
           class="message-wrapper"
+          @scroll="e=> console.log(e.target)"
       >
         <div
             v-if="mess.event === 'connection'"
@@ -31,6 +33,7 @@
           </p>
         </div>
       </div>
+      </TransitionGroup>
     </div>
     <form
         class="messages__inputs"
@@ -49,7 +52,7 @@
 
 <script lang="ts" setup>
 
-import { inject, onMounted, ref } from 'vue'
+import {inject, onMounted, ref, watch} from 'vue'
 import UiInput from '@/core/components/ui/ui-input.vue'
 import UiButton from '@/core/components/ui/ui-button.vue'
 import { useUserStore } from '@/modules/user/store'
@@ -57,19 +60,12 @@ import { SocketService } from '@/modules/socket/service/socketService.ts'
 import { useSocketStore } from '@/modules/socket/store'
 
 const socketStore = useSocketStore()
-const socketService = new SocketService(socketStore)
 const messages = ref([])
-const socket = new WebSocket('wss://norylord-chat-app.onrender.com')
+const socket = new WebSocket('ws://localhost:4000')
 
 onMounted(() => {
   socket.onopen = () => {
-    const connectionMessage = {
-      username: userStore.user.username,
-      id: Date.now(),
-      event: 'connection'
-    }
-    socket.send(JSON.stringify(connectionMessage))
-    console.log(123)
+    getMessages()
   }
   socket.onclose = () => {
     console.log('soсket закрыт')
@@ -84,13 +80,22 @@ onMounted(() => {
     console.log('soсket произошла ошибка')
   }
   socket.onmessage = ({ data }) => {
+    if (JSON.parse(data) instanceof Array) {
+      messages.value = JSON.parse(data)
+    }
     messages.value = [...messages.value, JSON.parse(data)]
+    if (messageList && messageList.value) {
+      if (messageList && messageList.value.scrollHeight - messageList.value.scrollTop < 200)
+        messageList.value.scrollTop = messageList.value.scrollHeight
+    }
+
   }
 })
 
 const userStore = useUserStore()
 
 const messageText = ref('')
+const messageList = ref()
 const sendMessage = async () => {
   if (!messageText.value.trim().length) return
   const message = {
@@ -102,7 +107,22 @@ const sendMessage = async () => {
   }
   socket.send(JSON.stringify(message))
   messageText.value = ''
+  setTimeout(() => {
+    messageList.value.scrollTop = messageList.value.scrollHeight
+  }, 400)
 }
+
+const getMessages = () => {
+  const message = {
+    username: userStore.user.username,
+    message: '',
+    id: Date.now(),
+    event: 'get-messages',
+    time: new Date().getTime()
+  }
+  socket.send(JSON.stringify(message))
+}
+
 </script>
 
 <style lang='scss'>
@@ -164,7 +184,7 @@ const sendMessage = async () => {
       border-radius: 16px;
 
       &-time {
-        margin-left: 4px;
+        margin-left: auto;
         padding-top: 10px;
         font-size: 12px;
       }
@@ -196,5 +216,14 @@ const sendMessage = async () => {
       width: 100%;
     }
   }
+}
+
+.list-enter-active,
+.list-leave-active {
+  transition: all 1s ease;
+}
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
 }
 </style>
