@@ -1,28 +1,21 @@
 <template>
   <div class="wrapper">
     <div class="container">
-      <Login v-if="!userStore.user.username" />
+      <Login v-if="!userService.getUsername()" />
       <Messages v-else />
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-
-import { onMounted, provide, ref } from 'vue'
 import Login from '@/modules/login/pages/Login.vue'
-import { SocketService } from '@/modules/socket/service/socketService.ts'
 import { useUserStore } from '@/modules/user/store'
 import Messages from '@/modules/messages/pages/Messages.vue'
-import { useSocketStore } from '@/modules/socket/store'
+import { UserService } from '@/modules/user/services/userService.ts'
 
 const userStore = useUserStore()
-const socketStore = useSocketStore()
-const socket = new SocketService(socketStore)
+const userService = new UserService(userStore)
 
-onMounted(() => {
-  socket.makeConnection()
-})
 </script>
 
 <style lang='scss'>
