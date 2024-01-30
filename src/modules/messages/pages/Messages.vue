@@ -15,7 +15,7 @@
           <span class="message__title--connected">{{ mess.username }}</span> присоединился к чату
         </div>
         <div
-            v-else-if="mess.event === 'connection-closed'"
+            v-else-if="mess.event === 'connection-close'"
             class="messages__body-message message message--connected"
         >
           {{ mess.username }} покинул чат
@@ -52,7 +52,7 @@
 
 <script lang="ts" setup>
 
-import {inject, onMounted, ref, watch} from 'vue'
+import {inject, onBeforeMount, onBeforeUnmount, onMounted, onUnmounted, ref, watch} from 'vue'
 import UiInput from '@/core/components/ui/ui-input.vue'
 import UiButton from '@/core/components/ui/ui-button.vue'
 import { useUserStore } from '@/modules/user/store'
@@ -75,12 +75,7 @@ onMounted(() => {
   }
   socket.onclose = () => {
     console.log('soсket закрыт')
-    const connectionMessage = {
-      username: userStore.user.username,
-      id: Date.now(),
-      event: 'connection-close'
-    }
-    socket.send(JSON.stringify(connectionMessage))
+
   }
   socket.onerror = () => {
     console.log('soсket произошла ошибка')
@@ -130,6 +125,19 @@ const getMessages = () => {
   socket.send(JSON.stringify(message))
 }
 
+
+onMounted(() => {
+  window.addEventListener('beforeunload', handleBeforeUnload);
+})
+
+const handleBeforeUnload = () => {
+  const connectionMessage = {
+    username: userStore.user.username,
+    id: Date.now(),
+    event: 'connection-close'
+  }
+  socket.send(JSON.stringify(connectionMessage))
+}
 </script>
 
 <style lang='scss'>
