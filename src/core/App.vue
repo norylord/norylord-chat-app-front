@@ -42,4 +42,10 @@ const userService = new UserService(userStore)
   justify-content: center;
   align-items: center;
 }
+
+@media screen and (max-width: 700px) {
+  .container {
+    height: 100%;
+  }
+}
 </style>
