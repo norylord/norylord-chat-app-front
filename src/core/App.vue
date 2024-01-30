@@ -1,7 +1,9 @@
 <template>
   <div class="wrapper">
     <div class="container">
-      <Login v-if="!userService.getUsername()" />
+      <Login
+        v-if="(userService.getUsername().length < 6 || userService.getUsername().length > 20)"
+      />
       <Messages v-else />
     </div>
   </div>

@@ -4,11 +4,17 @@ import { computed } from 'vue'
 interface ILoginService {
   makeLogin: (login: string) => void
 }
+
 export class LoginService implements ILoginService {
   constructor (private readonly store: IUserStore) {
   }
 
   async makeLogin (login: string) {
+    console.log(login.length)
+    if (login.length < 6 || login.length > 20) {
+      console.log(123123132)
+      return 'Некорректная длина ника, должно быть от 6 до 20 символов'
+    }
     this.store.user.username = login
     localStorage.setItem('username', login)
   }
