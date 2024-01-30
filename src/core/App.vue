@@ -46,6 +46,7 @@ const userService = new UserService(userStore)
 @media screen and (max-width: 700px) {
   .container {
     height: 100%;
+    border-radius: 0;
   }
 }
 </style>

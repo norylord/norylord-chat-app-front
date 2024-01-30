@@ -1,11 +1,16 @@
 <template>
-  <input
-    type="text"
-    class="input"
-    :placeholder="placeholder"
-    :value="modelValue"
-    @input="(e: Event) => emit('update:modelValue', e.target.value)"
-  >
+  <div class="input-wrapper">
+    <input
+      type="text"
+      class="input"
+      :placeholder="placeholder"
+      :value="modelValue"
+      @input="(e: Event) => emit('update:modelValue', e.target.value)"
+    >
+    <div class="input-prepend">
+      <slot name="prepend" />
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -28,9 +33,31 @@ const emit = defineEmits(['update:modelValue'])
   border: 1px solid #c0c0c0;
   outline: none;
   transition: all .2s ease-in-out;
+
+  &-wrapper {
+    position: relative;
+  }
+
   &:focus {
     background: transparent;
     border: 1px solid #06a94d;
+  }
+
+  &-prepend {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 16px;
+    padding: 16px 0;
+    max-height: 42px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    button {
+      padding: 12px 16px;
+      border-radius: 9999px;
+    }
   }
 }
 </style>

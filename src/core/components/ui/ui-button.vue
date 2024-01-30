@@ -46,4 +46,10 @@ const props = defineProps<IProps>()
     background: #04803b;
   }
 }
+
+@media screen and (max-width: 700px) {
+  .button {
+    padding: 8px 12px;
+  }
+}
 </style>

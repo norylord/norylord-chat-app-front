@@ -37,22 +37,37 @@
     >
       <ui-input
         v-model="messageText"
+        class="messages__inputs-input"
         placeholder="Введите сообщение"
-      />
-      <ui-button
-        style="padding: 8px 16px"
-        @click.prevent
       >
-        <img
-          src="@/core/assets/icons/image.svg"
-          width="36"
-          height="36"
-          alt=""
+        <template
+          v-if="messageText.length"
+          #prepend
         >
-      </ui-button>
-      <ui-button type="submit">
-        Отправить
-      </ui-button>
+          <ui-button
+            type="submit"
+            class="messages__inputs-btn"
+          >
+            <img
+              src="@/core/assets/icons/send.svg"
+              width="16"
+              alt=""
+            >
+          </ui-button>
+        </template>
+      </ui-input>
+      <!--      <ui-button-->
+      <!--        style="padding: 8px 16px"-->
+      <!--        class="messages__inputs-btn"-->
+      <!--        @click.prevent-->
+      <!--      >-->
+      <!--        <img-->
+      <!--          src="@/core/assets/icons/image.svg"-->
+      <!--          width="24"-->
+      <!--          height="24"-->
+      <!--          alt=""-->
+      <!--        >-->
+      <!--      </ui-button>-->
     </form>
   </div>
 </template>
@@ -182,8 +197,17 @@ const handleConfirmUsernameUpdating = () => {
   }
 
   &__inputs {
+    padding-top: 8px;
     display: flex;
+    flex-flow: row wrap;
     gap: 4px;
+
+    &-input {
+      flex: 1 0 100%
+    }
+
+    &-btn {
+    }
   }
 
 }
