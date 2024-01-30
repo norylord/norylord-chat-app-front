@@ -81,7 +81,7 @@ const parseText = computed(() => {
   padding: 12px;
 
   &__title {
-    max-width: 90px;
+    max-width: 150px;
     text-overflow: ellipsis;
     overflow-x: hidden;
     white-space: nowrap;

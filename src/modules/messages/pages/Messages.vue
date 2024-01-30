@@ -152,10 +152,11 @@ const isUsernameUpdating = ref(false)
 const newUsername = ref(userService.getUsername())
 const handleConfirmUsernameUpdating = () => {
   localStorage.setItem('username', JSON.stringify(newUsername.value))
-  newUsername.value = newUsername.value.trim()
+  newUsername.value = newUsername.value.trim().replaceAll('"', '')
   if (newUsername.value.length === 0) {
     return
   }
+  console.log(newUsername.value)
   userService.setUsername(newUsername.value)
   isUsernameUpdating.value = false
 }
