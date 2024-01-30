@@ -44,12 +44,6 @@ interface IProps {
 
 const props = defineProps<IProps>()
 
-const checkForURL = (value: string) => {
-  const links = value.match(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/)
-  if (links) return true
-  return false
-}
-
 const parseText = computed(() => {
   let result = props.message.message
   const links = result.match(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi)

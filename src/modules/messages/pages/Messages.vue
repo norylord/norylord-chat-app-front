@@ -148,6 +148,10 @@ watch(() => userStore.messages.length, () => {
   }, 300)
 })
 
+onMounted(() => {
+  messageList.value.scrollTop = messageList.value.scrollHeight
+})
+
 const isUsernameUpdating = ref(false)
 const newUsername = ref(userService.getUsername())
 const handleConfirmUsernameUpdating = () => {
