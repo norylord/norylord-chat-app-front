@@ -4,8 +4,9 @@
   >
     <TransitionGroup name="list">
       <Message
-        v-for="mess of messages"
+        v-for="(mess, index) of messages"
         :key="mess.id"
+        :previous-message="messages[index - 1] ?? {}"
         :message="mess"
         :username="username"
         class="message-wrapper"

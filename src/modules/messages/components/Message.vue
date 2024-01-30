@@ -16,7 +16,10 @@
     class="message"
     :class="{'message--owner': message.username === username}"
   >
-    <h3 class="message__title">
+    <h3
+      v-if="previousMessage.username !== message.username"
+      class="message__title"
+    >
       {{ message.username }}
     </h3>
     <div class="message__body">
@@ -39,6 +42,7 @@ import { computed } from 'vue'
 
 interface IProps {
   message: TMessage
+  previousMessage: TMessage
   username: string
 }
 
@@ -72,7 +76,7 @@ const parseText = computed(() => {
   max-width: 600px;
   width: fit-content;
   color: #ffffff;
-  padding: 12px;
+  padding: 4px 12px;
 
   &__title {
     max-width: 150px;
