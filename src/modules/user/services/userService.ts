@@ -26,7 +26,7 @@ export class UserService implements IUserService {
   }
 
   setUsernameId (usernameId: number) {
-    this.store.user.username = usernameId
+    this.store.user.id = usernameId
     localStorage.setItem('userId', JSON.stringify(usernameId))
   }
 
