@@ -15,7 +15,7 @@ export class LoginService implements ILoginService {
       return 'Некорректная длина ника, должно быть от 6 до 20 символов'
     }
     this.store.user.username = login
-    localStorage.setItem('username', JSON.stringify(login))
+    localStorage.setItem('username', login)
   }
 
   isLogin = computed(() => {

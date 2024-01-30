@@ -20,7 +20,7 @@ const userStore = useUserStore()
 const userService = new UserService(userStore)
 
 onMounted(() => {
-  if (!localStorage.getItem('userId')) userService.setUsernameId(Date.now())
+  if (!JSON.parse(localStorage.getItem('userId'))) userService.setUsernameId(Date.now())
 })
 
 </script>
