@@ -7,7 +7,7 @@ interface IUserService {
 }
 
 export class UserService implements IUserService {
-  constructor (private readonly store: IUserStore) {
+  constructor (readonly store: IUserStore) {
   }
 
   getUsername () {
