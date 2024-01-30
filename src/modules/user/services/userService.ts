@@ -25,6 +25,10 @@ export class UserService implements IUserService {
     this.store.user.username = username
   }
 
+  getUsernameId () {
+    return this.store.user.id
+  }
+
   getMessages () {
     return this.store.messages
   }

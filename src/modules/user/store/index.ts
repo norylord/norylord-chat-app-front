@@ -14,7 +14,7 @@ export const useUserStore = defineStore({
   state: (): IUserStore => ({
     user: {
       username: JSON.parse(localStorage.getItem('username')) ?? '',
-      id: Date.now()
+      id: JSON.parse(localStorage.getItem('userId')) ?? Date.now()
     },
     messages: []
   }),

@@ -14,10 +14,10 @@
   <div
     v-else
     class="message"
-    :class="{'message--owner': message.username === username}"
+    :class="{'message--owner': message.usernameId === userService.getUsernameId()}"
   >
     <h3
-      v-if="previousMessage.username !== message.username"
+      v-if="previousMessage.username !== message.username && previousMessage.event !== 'connection-close'"
       class="message__title"
     >
       {{ message.username }}
@@ -39,6 +39,8 @@
 import sanitizeHtml from 'sanitize-html'
 import { type TMessage } from '@/modules/messages/enitity/Messages.ts'
 import { computed } from 'vue'
+import { useUserStore } from '@/modules/user/store'
+import { UserService } from '@/modules/user/services/userService.ts'
 
 interface IProps {
   message: TMessage
@@ -47,6 +49,8 @@ interface IProps {
 }
 
 const props = defineProps<IProps>()
+const userStore = useUserStore()
+const userService = new UserService(userStore)
 
 const parseText = computed(() => {
   let result = props.message.message

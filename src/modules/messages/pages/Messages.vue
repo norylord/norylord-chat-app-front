@@ -120,7 +120,8 @@ const handleSendMessage = () => {
     message: messageText.value.trim(),
     event: 'message',
     time: new Date().getTime(),
-    username: userService.getUsername()
+    username: userService.getUsername(),
+    usernameId: userService.getUsernameId()
   }
   messageText.value = ''
   socketService.sendMessage(newMessage)

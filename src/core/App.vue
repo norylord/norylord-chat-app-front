@@ -14,9 +14,14 @@ import Login from '@/modules/login/pages/Login.vue'
 import { useUserStore } from '@/modules/user/store'
 import Messages from '@/modules/messages/pages/Messages.vue'
 import { UserService } from '@/modules/user/services/userService.ts'
+import { onMounted } from 'vue'
 
 const userStore = useUserStore()
 const userService = new UserService(userStore)
+
+onMounted(() => {
+  localStorage.setItem('userId', JSON.stringify(Date.now()))
+})
 
 </script>
 
