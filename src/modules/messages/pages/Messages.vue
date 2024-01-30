@@ -95,7 +95,7 @@ const handleBeforeUnload = () => {
 }
 
 const handleSendMessage = () => {
-  if (messageText.value.length > 0) {
+  if (messageText.value.length === 0) {
     messageText.value = ''
     return
   }
