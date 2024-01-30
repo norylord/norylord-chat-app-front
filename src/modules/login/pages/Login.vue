@@ -63,6 +63,7 @@ const checkForUsername = computed(() => {
 .login {
   max-width: 600px;
   width: 100%;
+  padding: 24px;
 
   &__title {
     font-size: 60px;
