@@ -1,5 +1,30 @@
 <template>
   <div class="messages">
+    <div class="messages__header">
+      <h1
+        v-if="!isUsernameUpdating"
+        class="messages__header-title"
+        @click="isUsernameUpdating = true"
+      >
+        {{ userService.getUsername() }}
+      </h1>
+      <form
+        v-else
+        class="messages__header-inputs"
+        @submit.prevent
+      >
+        <ui-input
+          v-model="newUsername"
+          placeholder="Введите сообщение"
+        />
+        <ui-button
+          type="submit"
+          @click="handleConfirmUsernameUpdating"
+        >
+          Подтвердить
+        </ui-button>
+      </form>
+    </div>
     <MessagesList
       id="messageList"
       :messages="userService.getMessages()"
@@ -14,6 +39,16 @@
         v-model="messageText"
         placeholder="Введите сообщение"
       />
+      <ui-button
+        style="padding: 8px 16px"
+      >
+        <img
+          src="@/core/assets/icons/image.svg"
+          width="36"
+          height="36"
+          alt=""
+        >
+      </ui-button>
       <ui-button type="submit">
         Отправить
       </ui-button>
@@ -60,9 +95,13 @@ const handleBeforeUnload = () => {
 }
 
 const handleSendMessage = () => {
+  if (messageText.value.length > 0) {
+    messageText.value = ''
+    return
+  }
   const newMessage: TMessage = {
     id: Date.now(),
-    message: messageText.value,
+    message: messageText.value.trim(),
     event: 'message',
     time: new Date().getTime(),
     username: userService.getUsername()
@@ -92,6 +131,15 @@ watch(() => userStore.messages.length, () => {
     }
   }, 300)
 })
+
+const isUsernameUpdating = ref(false)
+const newUsername = ref(userService.getUsername())
+const handleConfirmUsernameUpdating = () => {
+  localStorage.setItem('username', JSON.stringify(newUsername.value))
+  userService.setUsername(newUsername.value)
+  isUsernameUpdating.value = false
+}
+
 </script>
 
 <style lang='scss'>
@@ -101,8 +149,21 @@ watch(() => userStore.messages.length, () => {
   height: 100%;
   padding: 24px;
   display: grid;
-  grid-auto-rows: 1fr max-content;
+  grid-auto-rows: max-content 1fr max-content;
   grid-template-columns: 1fr;
+
+  &__header {
+    color: #06a94d;
+
+    &-title {
+      color: #06a94d;
+    }
+
+    &-inputs {
+      display: flex;
+      gap: 4px;
+    }
+  }
 
   &__list {
     overflow-y: auto;
@@ -126,6 +187,7 @@ watch(() => userStore.messages.length, () => {
 .list-leave-active {
   transition: all 1s ease;
 }
+
 .list-enter-from,
 .list-leave-to {
   opacity: 0;

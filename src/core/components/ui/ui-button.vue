@@ -1,5 +1,8 @@
 <template>
-  <button class="button">
+  <button
+    class="button"
+    :class="{'button--outlined': variant==='outlined'}"
+  >
     <slot />
   </button>
 </template>
@@ -7,6 +10,7 @@
 <script lang="ts" setup>
 
 interface IProps {
+  variant: string
 }
 
 const props = defineProps<IProps>()
@@ -23,7 +27,22 @@ const props = defineProps<IProps>()
   align-items: center;
   border: none;
   border-radius: 16px;
-  &:hover{
+  cursor: pointer;
+
+  img {
+    color: currentColor;
+    stroke: #06a94d;
+  }
+
+  &--outlined {
+    background: rgba(0, 0, 0, 0);
+    color: #06a94d;
+    border: 1px solid #06a94d;
+    stroke: #06a94d;
+    fill: #06a94d;
+  }
+
+  &:hover {
     background: #04803b;
   }
 }

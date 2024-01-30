@@ -9,7 +9,7 @@
     v-else-if="message.event === 'connection-close'"
     class="message message--connected"
   >
-    {{ message.username }} покинул чат
+    <span class="message__title--connected">{{ message.username }}</span> покинул чат
   </div>
   <div
     v-else
@@ -79,6 +79,7 @@ const parseText = computed(() => {
   width: fit-content;
   color: #ffffff;
   padding: 12px;
+
   &__title {
     max-width: 90px;
     text-overflow: ellipsis;
@@ -95,9 +96,11 @@ const parseText = computed(() => {
       white-space: nowrap;
     }
   }
+
   &__body {
     display: flex;
   }
+
   &__text {
     max-width: 600px;
     word-break: break-word;
@@ -112,27 +115,34 @@ const parseText = computed(() => {
       color: #26834f;
       font-size: 12px;
     }
+
     &--link {
       color: #b3d3f1;
     }
   }
+
   &--owner {
     margin-left: auto;
     text-align: end;
+
     .message__title {
       margin-left: auto;
       color: #2f5eca;
     }
+
     .message__text {
       background: #2f5eca !important;
     }
+
     .message__body {
       flex-direction: row-reverse;
     }
+
     .message__text-time {
       color: #2f5eca !important;
     }
   }
+
   &--connected {
     font-size: 12px;
     width: fit-content;
