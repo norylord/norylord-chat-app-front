@@ -10,7 +10,25 @@
         >
           {{ userService.getUsername() }}
         </h1>
-        Количество активных пользователей: {{ socketService.getUsersCount() }}
+        <div
+          v-click-outside="() => showUserList = false"
+          class="messages__header-info"
+          @click="showUserList = !showUserList"
+        >
+          <p>
+            Количество активных пользователей: {{ socketService.getUsersCount() }}
+          </p>
+          <ul
+            v-if="showUserList"
+            class="messages__header-userlist"
+          >
+            <li
+              v-for="user of socketService.getActiveUsers()"
+              :key="user.id"
+              v-text="user.username"
+            />
+          </ul>
+        </div>
       </div>
       <form
         v-else
@@ -86,6 +104,7 @@ onMounted(() => {
   socketService.initConnection()
 })
 
+const showUserList = ref(false)
 const messageText = ref('')
 const messageList = ref(null)
 
@@ -155,7 +174,6 @@ const handleConfirmUsernameUpdating = () => {
   if (newUsername.value.length === 0) {
     return
   }
-  console.log(newUsername.value)
   userService.setUsername(newUsername.value)
   isUsernameUpdating.value = false
 }
@@ -181,6 +199,30 @@ const handleConfirmUsernameUpdating = () => {
 
       &:first-letter {
         color: #06a94d;
+      }
+    }
+
+    &-info {
+      position: relative;
+      user-select: none;
+      cursor: pointer;
+      padding: 8px 0;
+    }
+
+    &-userlist {
+      list-style: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px #ababab;
+      color: #fff;
+      background: #04803b;
+      left: 0px;
+      position: absolute;
+      animation: fade .3s ease-in-out;
+
+      li {
+        font-size: 16px;
+        min-width: 200px;
       }
     }
 
@@ -230,5 +272,18 @@ const handleConfirmUsernameUpdating = () => {
 .list-enter-from,
 .list-leave-to {
   opacity: 0;
+}
+
+@keyframes fade {
+  0% {
+    opacity: 0;
+    transform: translateX(-30px) translateY(-6px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0) translateY(0);
+
+  }
 }
 </style>

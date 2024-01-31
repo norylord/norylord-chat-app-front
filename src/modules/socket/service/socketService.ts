@@ -6,7 +6,7 @@ interface ISocketService {
   isConnected: boolean
   initConnection: () => void
   getPreviousMessages: () => void
-  sendMessage: () => void
+  sendMessage: (message: TMessage) => void
 }
 
 export class SocketService implements ISocketService {
@@ -73,5 +73,9 @@ export class SocketService implements ISocketService {
 
   getUsersCount () {
     return this.socketStore.users.length
+  }
+
+  getActiveUsers () {
+    return this.socketStore.users
   }
 }
