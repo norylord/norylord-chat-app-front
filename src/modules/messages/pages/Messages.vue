@@ -1,15 +1,20 @@
 <template>
   <div class="messages">
     <div class="messages__header">
-      <h1
+      <div
         v-if="!isUsernameUpdating"
-        class="messages__header-title"
-        @click="isUsernameUpdating = true"
       >
-        {{ userService.getUsername() }}
-      </h1>
+        <h1
+          class="messages__header-title"
+          @click="isUsernameUpdating = true"
+        >
+          {{ userService.getUsername() }}
+        </h1>
+        Количество активных пользователей: {{ socketService.getUsersCount() }}
+      </div>
       <form
         v-else
+        v-click-outside="handleConfirmUsernameUpdating"
         class="messages__header-inputs"
         @submit.prevent
       >
@@ -56,18 +61,6 @@
           </ui-button>
         </template>
       </ui-input>
-      <!--      <ui-button-->
-      <!--        style="padding: 8px 16px"-->
-      <!--        class="messages__inputs-btn"-->
-      <!--        @click.prevent-->
-      <!--      >-->
-      <!--        <img-->
-      <!--          src="@/core/assets/icons/image.svg"-->
-      <!--          width="24"-->
-      <!--          height="24"-->
-      <!--          alt=""-->
-      <!--        >-->
-      <!--      </ui-button>-->
     </form>
   </div>
 </template>
@@ -104,6 +97,7 @@ onMounted(() => {
 const handleBeforeUnload = () => {
   const unconnectedMessage = {
     username: userService.getUsername(),
+    usernameId: userService.getUsernameId(),
     id: Date.now(),
     event: 'connection-close'
   }
@@ -180,14 +174,24 @@ const handleConfirmUsernameUpdating = () => {
 
   &__header {
     color: #06a94d;
+    padding: 12px;
 
     &-title {
-      color: #06a94d;
+      color: #282828;
+
+      &:first-letter {
+        color: #06a94d;
+      }
     }
 
     &-inputs {
+      width: 100%;
       display: flex;
       gap: 4px;
+
+      .input-wrapper {
+        width: 100%;
+      }
     }
   }
 

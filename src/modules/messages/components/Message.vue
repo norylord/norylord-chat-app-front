@@ -17,7 +17,7 @@
     :class="{'message--owner': message.usernameId === userService.getUsernameId()}"
   >
     <h3
-      v-if="previousMessage.username !== message.username && previousMessage.event !== 'connection-close'"
+      v-if="previousMessage.usernameId !== message.usernameId && previousMessage.event !== 'connection-close'"
       class="message__title"
     >
       {{ message.username }}
@@ -106,7 +106,7 @@ const parseText = computed(() => {
   &__text {
     max-width: 600px;
     word-break: break-word;
-    background: #26834f;
+    background: linear-gradient(90deg, #4bbb7d, #26834f);
     font-weight: 500;
     padding: 12px 20px;
     border-radius: 16px;
@@ -133,7 +133,7 @@ const parseText = computed(() => {
     }
 
     .message__text {
-      background: #2f5eca !important;
+      background: linear-gradient(90deg, #2f5eca, #587dcd) !important;
     }
 
     .message__body {

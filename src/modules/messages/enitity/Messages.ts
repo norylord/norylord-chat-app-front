@@ -3,6 +3,7 @@ export interface TMessage {
   id: number
   date?: number
   username: string
+  usernameId: number
   message: string
   time?: any
 }

@@ -1,4 +1,4 @@
-import { type ISocketStore } from '../socketStore'
+import { type ISocketStore } from '../socketStore.ts'
 import { type IUserStore } from '../../user/store'
 import { type TMessage } from '../../messages/enitity/Messages.ts'
 
@@ -20,6 +20,7 @@ export class SocketService implements ISocketService {
     this.socketStore.socket.onopen = () => {
       const connectionMessage: TMessage = {
         username: this.userStore.user.username,
+        usernameId: this.userStore.user.id,
         id: Date.now(),
         date: Date.now(),
         message: '',
@@ -37,11 +38,21 @@ export class SocketService implements ISocketService {
       console.log('soсket произошла ошибка')
     }
     this.socketStore.socket.onmessage = ({ data }) => {
-      if (JSON.parse(data) instanceof Array) {
+      const parsedMessage: TMessage = JSON.parse(data)
+      if (parsedMessage instanceof Array) {
         this.userStore.messages = JSON.parse(data)
         return
       }
-      this.userStore.messages = [...this.userStore.messages, JSON.parse(data)]
+
+      switch (parsedMessage.event) {
+        case 'usersLength': {
+          this.socketStore.users = parsedMessage.message
+          break
+        }
+        default: {
+          this.userStore.messages = [...this.userStore.messages, JSON.parse(data)]
+        }
+      }
     }
   }
 
@@ -58,5 +69,9 @@ export class SocketService implements ISocketService {
 
   sendMessage (message: TMessage) {
     this.socketStore.socket.send(JSON.stringify(message))
+  }
+
+  getUsersCount () {
+    return this.socketStore.users.length
   }
 }
