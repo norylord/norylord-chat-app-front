@@ -1,5 +1,6 @@
 import { type IUserStore } from '../store'
 import { computed } from 'vue'
+import { setToLocalStorage } from '../../../core/utils/localStorage.ts'
 
 interface IUserService {
   store: IUserStore
@@ -27,7 +28,7 @@ export class UserService implements IUserService {
 
   setUsernameId (usernameId: number) {
     this.store.user.id = usernameId
-    localStorage.setItem('userId', JSON.stringify(usernameId))
+    setToLocalStorage('userId', usernameId)
   }
 
   getUsernameId () {

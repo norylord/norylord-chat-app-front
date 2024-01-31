@@ -1,5 +1,6 @@
 import { type IUserStore } from '../../user/store'
 import { computed } from 'vue'
+import { setToLocalStorage } from '../../../core/utils/localStorage.ts'
 
 interface ILoginService {
   makeLogin: (login: string) => void
@@ -15,7 +16,7 @@ export class LoginService implements ILoginService {
       return 'Некорректная длина ника, должно быть от 6 до 20 символов'
     }
     this.store.user.username = login
-    localStorage.setItem('username', login)
+    setToLocalStorage('username', login)
   }
 
   isLogin = computed(() => {

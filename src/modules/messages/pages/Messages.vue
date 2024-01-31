@@ -94,6 +94,7 @@ import { useSocketStore } from '@/modules/socket/store'
 import { type TMessage } from '@/modules/messages/enitity/Messages.ts'
 import { UserService } from '@/modules/user/services/userService.ts'
 import MessagesList from '@/modules/messages/components/MessagesList.vue'
+import { setToLocalStorage } from '@/core/utils/localStorage.ts'
 
 const socketStore = useSocketStore()
 const userStore = useUserStore()
@@ -169,7 +170,7 @@ onMounted(() => {
 const isUsernameUpdating = ref(false)
 const newUsername = ref(userService.getUsername())
 const handleConfirmUsernameUpdating = () => {
-  localStorage.setItem('username', JSON.stringify(newUsername.value))
+  setToLocalStorage('username', newUsername.value)
   newUsername.value = newUsername.value.trim().replaceAll('"', '')
   if (newUsername.value.length === 0) {
     return
