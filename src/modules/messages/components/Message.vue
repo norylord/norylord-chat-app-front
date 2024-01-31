@@ -17,7 +17,7 @@
     :class="{'message--owner': message.usernameId === userService.getUsernameId()}"
   >
     <h3
-      v-if="previousMessage.usernameId !== message.usernameId && previousMessage.event !== 'connection-close'"
+      v-if="showMessageTitle"
       class="message__title"
     >
       {{ message.username }}
@@ -68,6 +68,16 @@ const parseText = computed(() => {
       a: ['class', 'href', 'target']
     }
   })
+})
+
+const showMessageTitle = computed(() => {
+  if (props.previousMessage.event === 'connection-close' || props.previousMessage.event === 'connection') {
+    return true
+  }
+  if (props.previousMessage.usernameId === props.message.usernameId) {
+    return false
+  }
+  return true
 })
 
 </script>
