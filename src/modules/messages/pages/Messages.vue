@@ -73,9 +73,8 @@
         >
           <ui-button
             variant="flat"
-            type="submit"
             class="messages__inputs-btn"
-            @click="handleOpenFileInput"
+            @click.prevent="handleOpenFileInput"
           >
             <img
               src="@/core/assets/icons/image.svg"

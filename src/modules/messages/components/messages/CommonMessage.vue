@@ -25,6 +25,7 @@
         :src="getMessageImageSrc(message.reply_message.message_img)"
         alt=""
         width="40"
+        height="40"
       >
     </div>
     <div
@@ -155,6 +156,7 @@ const getMessageImageSrc = (messageImg) => {
   &__img {
     padding: 8px;
     max-width: 700px;
+    max-height: 500px;
     border-radius: 16px;
 
   }
