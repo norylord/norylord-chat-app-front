@@ -236,7 +236,6 @@ const messageImgSrc = computed(() => {
 <style lang='scss'>
 .messages {
   width: 100%;
-  max-width: 1140px;
   height: 100%;
   padding: 24px;
   display: grid;
