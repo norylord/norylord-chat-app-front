@@ -226,6 +226,8 @@ const getMessageImageSrc = (messageImg) => {
     font-size: 12px;
     max-width: 80px;
     text-overflow: ellipsis;
+    word-break: keep-all;
+    white-space: nowrap;
     width: 100%;
     overflow-x: hidden;
   }
