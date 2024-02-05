@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { type TMessage } from '../../messages/enitity/Messages.ts'
+import { type IMessage } from '../../messages/enitity/Messages.ts'
 import { getFromLocalStorage, getUsernameFromLocalStorage } from '../../../core/utils/localStorage.ts'
 
 export interface IUserStore {
@@ -7,7 +7,7 @@ export interface IUserStore {
     username: string
     id: number
   }
-  messages: TMessage[]
+  messages: IMessage[]
 }
 
 export const useUserStore = defineStore({

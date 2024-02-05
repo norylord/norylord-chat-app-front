@@ -1,70 +1,59 @@
 <template>
   <div class="messages">
-    <div class="messages__header">
-      <div
-        v-if="!isUsernameUpdating"
-      >
-        <h1
-          class="messages__header-title"
-          @click="isUsernameUpdating = true"
-        >
-          {{ userService.getUsername() }}
-        </h1>
-        <div
-          v-click-outside="() => showUserList = false"
-          class="messages__header-info"
-          @click="showUserList = !showUserList"
-        >
-          <p>
-            Количество активных пользователей: {{ socketService.getUsersCount() }}
-          </p>
-          <ul
-            v-if="showUserList"
-            class="messages__header-userlist"
-          >
-            <li
-              v-for="user of socketService.getActiveUsers()"
-              :key="user.id"
-              v-text="user.username"
-            />
-          </ul>
-        </div>
-      </div>
-      <form
-        v-else
-        v-click-outside="handleConfirmUsernameUpdating"
-        class="messages__header-inputs"
-        @submit.prevent
-      >
-        <ui-input
-          v-model="newUsername"
-          placeholder="Введите сообщение"
-        />
-        <ui-button
-          type="submit"
-          @click="handleConfirmUsernameUpdating"
-        >
-          Подтвердить
-        </ui-button>
-      </form>
-    </div>
+    <MessagesHeader
+      :users-count="socketService.getUsersCount()"
+      :is-username-updating="isUsernameUpdating"
+      :show-user-list="showUserList"
+      :active-users="socketService.getActiveUsers()"
+      :username="userService.getUsername()"
+      @update-username="isUsernameUpdating = true"
+      @close-userlist="showUserList = false"
+      @open-userlist="handleOpenUserList"
+      @confirm-username="handleConfirmUsernameUpdating"
+    />
     <MessagesList
       id="messageList"
       :messages="userService.getMessages()"
       :username="userService.getUsername()"
       @scroll="handleScrollMessageList()"
+      @reply="(v: IMessage) => handleReplyMessage(v)"
     />
     <form
       class="messages__inputs"
       @submit.prevent="handleSendMessage()"
     >
+      <div
+        v-if="replyMessage"
+        class="messages__inputs-reply"
+      >
+        <div>
+          <h3>В ответ: {{ replyMessage.username }}</h3>
+          <p>{{ replyMessage.message }}</p>
+        </div>
+        <img
+          src="@/core/assets/icons/cross.svg"
+          alt=""
+          width="24"
+          @click="replyMessage = null"
+        >
+      </div>
+      <div
+        v-if="messageImg"
+        class="messages__inputs-preview"
+      >
+        <img
+          :src="messageImgSrc.src"
+          alt=""
+          @click="replyMessage = null"
+        >
+      </div>
       <ui-input
         v-model="messageText"
         class="messages__inputs-input"
         placeholder="Введите сообщение"
       >
         <template
-          v-if="messageText.length"
+          v-if="messageText.length || messageImg"
           #prepend
         >
           <ui-button
@@ -78,23 +67,47 @@
             >
           </ui-button>
         </template>
+        <template
+          v-else
+          #prepend
+        >
+          <ui-button
+            variant="flat"
+            type="submit"
+            class="messages__inputs-btn"
+            @click="handleOpenFileInput"
+          >
+            <img
+              src="@/core/assets/icons/image.svg"
+              width="24"
+              alt=""
+            >
+          </ui-button>
+        </template>
       </ui-input>
+      <input
+        v-show="false"
+        ref="fileInput"
+        type="file"
+        @change="handleUploadImg"
+      >
     </form>
   </div>
 </template>
 
 <script lang="ts" setup>
 
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import UiInput from '@/core/components/ui/ui-input.vue'
 import UiButton from '@/core/components/ui/ui-button.vue'
 import { useUserStore } from '@/modules/user/store'
 import { SocketService } from '@/modules/socket/service/socketService.ts'
 import { useSocketStore } from '@/modules/socket/store'
-import { type TMessage } from '@/modules/messages/enitity/Messages.ts'
+import { type IMessage } from '@/modules/messages/enitity/Messages.ts'
 import { UserService } from '@/modules/user/services/userService.ts'
 import MessagesList from '@/modules/messages/components/MessagesList.vue'
 import { setToLocalStorage } from '@/core/utils/localStorage.ts'
+import MessagesHeader from '@/modules/messages/components/MessagesHeader.vue'
 
 const socketStore = useSocketStore()
 const userStore = useUserStore()
@@ -106,8 +119,11 @@ onMounted(() => {
 })
 
 const showUserList = ref(false)
+const fileInput = ref(null)
 const messageText = ref('')
 const messageList = ref(null)
+const messageImg = ref(null)
+const replyMessage = ref<IMessage>(null)
 
 onMounted(() => {
   window.addEventListener('beforeunload', handleBeforeUnload)
@@ -125,11 +141,13 @@ const handleBeforeUnload = () => {
 }
 
 const handleSendMessage = () => {
-  if (messageText.value.length === 0 && messageText.value.length > 500) {
+  if ((messageText.value.length === 0 && messageText.value.length > 500)) {
     messageText.value = ''
-    return
+    if (!messageImg.value) {
+      return
+    }
   }
-  const newMessage: TMessage = {
+  let newMessage: IMessage = {
     id: Date.now(),
     message: messageText.value.trim(),
     event: 'message',
@@ -137,12 +155,20 @@ const handleSendMessage = () => {
     username: userService.getUsername(),
     usernameId: userService.getUsernameId()
   }
+  if (replyMessage.value) {
+    newMessage = { ...newMessage, reply_message: replyMessage.value }
+  }
+  if (messageImg.value) {
+    newMessage = { ...newMessage, message_img: messageImg.value }
+  }
+  replyMessage.value = null
+  messageImg.value = null
   messageText.value = ''
   socketService.sendMessage(newMessage)
 }
 const isMessageListScrollFreeze = ref(false)
 const handleScrollMessageList = () => {
-  if (messageList.value && messageList.value) {
+  if (messageList.value) {
     if (messageList.value.scrollHeight - messageList.value.scrollTop < 1500) {
       isMessageListScrollFreeze.value = true
     } else {
@@ -164,21 +190,48 @@ watch(() => userStore.messages.length, () => {
 })
 
 onMounted(() => {
-  messageList.value.scrollTop = messageList.value.scrollHeight
+  setTimeout(() => {
+    messageList.value.scrollTop = messageList.value.scrollHeight
+  }, 300)
 })
 
 const isUsernameUpdating = ref(false)
-const newUsername = ref(userService.getUsername())
-const handleConfirmUsernameUpdating = () => {
-  setToLocalStorage('username', newUsername.value)
-  newUsername.value = newUsername.value.trim().replaceAll('"', '')
-  if (newUsername.value.length === 0) {
+const handleConfirmUsernameUpdating = (username: string) => {
+  setToLocalStorage('username', username)
+  username = username.trim().replaceAll('"', '')
+  if (username.length === 0) {
     return
   }
-  userService.setUsername(newUsername.value)
+  userService.setUsername(username)
   isUsernameUpdating.value = false
 }
 
+const handleOpenUserList = () => showUserList.value = !showUserList.value
+
+const handleReplyMessage = (message: IMessage) => {
+  replyMessage.value = message
+}
+
+const handleUploadImg = (element: any) => {
+  const file = element.target.files[0]
+  const reader = new FileReader()
+  reader.onloadend = function () {
+    console.log(reader.result)
+    messageImg.value = reader.result
+  }
+  reader.readAsDataURL(file)
+}
+
+const handleOpenFileInput = () => {
+  fileInput.value.click()
+}
+
+const messageImgSrc = computed(() => {
+  if (!messageImg.value) return null
+  const image = new Image()
+  image.src = messageImg.value
+  return image
+})
 </script>
 
 <style lang='scss'>
@@ -259,7 +312,30 @@ const handleConfirmUsernameUpdating = () => {
       flex: 1 0 100%
     }
 
-    &-btn {
+    &-reply {
+      width: 100%;
+      max-width: 600px;
+      padding: 4px 16px;
+      border-radius: 16px;
+      background: #04803b;
+      display: flex;
+      justify-content: space-between;
+      color: #ffffff;
+
+      h3 {
+        font-size: 14px;
+      }
+
+      p {
+        font-size: 12px;
+      }
+    }
+
+    &-preview {
+      img {
+        max-width: 300px;
+        border-radius: 8px;
+      }
     }
   }
 

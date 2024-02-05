@@ -55,8 +55,9 @@ const emit = defineEmits(['update:modelValue'])
     align-items: center;
 
     button {
-      padding: 12px 16px;
+      padding: 8px 16px;
       border-radius: 9999px;
+      color: red;
     }
   }
 }

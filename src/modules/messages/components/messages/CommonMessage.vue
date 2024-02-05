@@ -1,20 +1,8 @@
 <template>
   <div
-    v-if="message.event === 'connection'"
-    class="message message--connected"
-  >
-    <span class="message__title--connected">{{ message.username }}</span> присоединился к чату
-  </div>
-  <div
-    v-else-if="message.event === 'connection-close'"
-    class="message message--connected"
-  >
-    <span class="message__title--connected">{{ message.username }}</span> покинул чат
-  </div>
-  <div
-    v-else
     class="message"
     :class="{'message--owner': message.usernameId === userService.getUsernameId()}"
+    @click="handleDoubleClickOnMessage"
   >
     <h3
       v-if="showMessageTitle"
@@ -22,7 +10,27 @@
     >
       {{ message.username }}
     </h3>
-    <div class="message__body">
+    <div
+      v-if="message.reply_message"
+      class="message-reply reply"
+      :class="{'reply--owner': message.usernameId === userService.getUsernameId()}"
+
+      style="color: #000"
+    >
+      <h3>{{ message.reply_message.username }}</h3>
+      <p>{{ message.reply_message.message }}</p>
+      <img
+        v-if="message.reply_message.hasOwnProperty('message_img')"
+        :class="{'message__img--owner': message.usernameId === userService.getUsernameId()}"
+        :src="getMessageImageSrc(message.reply_message.message_img)"
+        alt=""
+        width="40"
+      >
+    </div>
+    <div
+      v-if="message.message"
+      class="message__body"
+    >
       <p
         class="message__text"
         v-html="parseText"
@@ -32,23 +40,43 @@
         minute: "2-digit"
       }) }}</span>
     </div>
+
+    <img
+      v-if="message.hasOwnProperty('message_img')"
+      class="message__img"
+      :class="{'message__img--owner': message.usernameId === userService.getUsernameId()}"
+      :src="messageImage.src"
+      alt=""
+    >
   </div>
 </template>
 
 <script lang="ts" setup>
-import sanitizeHtml from 'sanitize-html'
-import { type TMessage } from '@/modules/messages/enitity/Messages.ts'
-import { computed } from 'vue'
+
+import type { IMessage } from '@/modules/messages/enitity/Messages.ts'
+import { computed, ref } from 'vue'
 import { useUserStore } from '@/modules/user/store'
 import { UserService } from '@/modules/user/services/userService.ts'
+import sanitizeHtml from 'sanitize-html'
 
 interface IProps {
-  message: TMessage
-  previousMessage: TMessage
+  message: IMessage
+  previousMessage: IMessage
   username: string
 }
 
 const props = defineProps<IProps>()
+const emit = defineEmits(['reply'])
+
+const showMessageTitle = computed(() => {
+  if (props.previousMessage.event === 'connection-close' || props.previousMessage.event === 'connection') {
+    return true
+  }
+  if (props.previousMessage.usernameId === props.message.usernameId) {
+    return false
+  }
+  return true
+})
 const userStore = useUserStore()
 const userService = new UserService(userStore)
 
@@ -70,16 +98,27 @@ const parseText = computed(() => {
   })
 })
 
-const showMessageTitle = computed(() => {
-  if (props.previousMessage.event === 'connection-close' || props.previousMessage.event === 'connection') {
-    return true
+const isClickDouble = ref(false)
+const handleDoubleClickOnMessage = () => {
+  if (isClickDouble.value) {
+    emit('reply', props.message)
+    return
   }
-  if (props.previousMessage.usernameId === props.message.usernameId) {
-    return false
-  }
-  return true
+  isClickDouble.value = true
+  setTimeout(() => isClickDouble.value = false, 400)
+}
+
+const messageImage = computed(() => {
+  const image = new Image()
+  image.src = props.message.message_img
+  return image
 })
 
+const getMessageImageSrc = (messageImg) => {
+  const image = new Image()
+  image.src = messageImg
+  return image.src
+}
 </script>
 
 <style lang='scss'>
@@ -87,7 +126,7 @@ const showMessageTitle = computed(() => {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  max-width: 600px;
+  max-width: clamp(200px, 100%, 85vw);
   width: fit-content;
   color: #ffffff;
   padding: 4px 12px;
@@ -111,6 +150,13 @@ const showMessageTitle = computed(() => {
 
   &__body {
     display: flex;
+  }
+
+  &__img {
+    padding: 8px;
+    max-width: 700px;
+    border-radius: 16px;
+
   }
 
   &__text {
@@ -154,21 +200,40 @@ const showMessageTitle = computed(() => {
       color: #2f5eca !important;
     }
   }
-
-  &--connected {
-    font-size: 12px;
-    width: fit-content;
-    flex-direction: row;
-    padding: 4px 8px;
-    border-radius: 1000px;
-    background: #d2d2d2;
-    color: #426c7c;
-    margin: 10px auto;
-  }
-
-  &-wrapper {
-    display: flex;
-  }
 }
 
+.reply {
+  padding: 0 8px;
+  border-left: 3px solid #04803b;
+  display: flex;
+  flex-direction: column;
+
+  h3 {
+    font-size: 14px;
+    max-width: 80px;
+    width: 100%;
+    text-overflow: ellipsis;
+    overflow-x: hidden;
+
+    &:first-letter {
+      color: #04803b;
+    }
+  }
+
+  p {
+    font-size: 12px;
+    max-width: 80px;
+    text-overflow: ellipsis;
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  &--owner {
+    border-left: none;
+    border-right: 3px solid #2f5eca;
+    text-align: end;
+    justify-items: flex-end;
+    align-items: flex-end;
+  }
+}
 </style>

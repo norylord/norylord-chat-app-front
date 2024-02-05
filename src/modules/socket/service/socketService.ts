@@ -1,12 +1,12 @@
 import { type ISocketStore } from '../socketStore.ts'
 import { type IUserStore } from '../../user/store'
-import { type TMessage } from '../../messages/enitity/Messages.ts'
+import { type IMessage } from '../../messages/enitity/Messages.ts'
 
 interface ISocketService {
   isConnected: boolean
   initConnection: () => void
   getPreviousMessages: () => void
-  sendMessage: (message: TMessage) => void
+  sendMessage: (message: IMessage) => void
 }
 
 export class SocketService implements ISocketService {
@@ -18,7 +18,7 @@ export class SocketService implements ISocketService {
 
   initConnection () {
     this.socketStore.socket.onopen = () => {
-      const connectionMessage: TMessage = {
+      const connectionMessage: IMessage = {
         username: this.userStore.user.username,
         usernameId: this.userStore.user.id,
         id: Date.now(),
@@ -38,7 +38,7 @@ export class SocketService implements ISocketService {
       console.log('soсket произошла ошибка')
     }
     this.socketStore.socket.onmessage = ({ data }) => {
-      const parsedMessage: TMessage = JSON.parse(data)
+      const parsedMessage: IMessage = JSON.parse(data)
       if (parsedMessage instanceof Array) {
         this.userStore.messages = JSON.parse(data)
         return
@@ -57,7 +57,7 @@ export class SocketService implements ISocketService {
   }
 
   getPreviousMessages () {
-    const message: TMessage = {
+    const message: IMessage = {
       username: this.userStore.user.username,
       message: '',
       id: Date.now(),
@@ -67,7 +67,7 @@ export class SocketService implements ISocketService {
     this.sendMessage(message)
   }
 
-  sendMessage (message: TMessage) {
+  sendMessage (message: IMessage) {
     this.socketStore.socket.send(JSON.stringify(message))
   }
 

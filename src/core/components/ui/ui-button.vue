@@ -1,7 +1,7 @@
 <template>
   <button
     class="button"
-    :class="{'button--outlined': variant==='outlined'}"
+    :class="{'button--outlined': variant==='outlined', 'button--flat': variant==='flat',}"
   >
     <slot />
   </button>
@@ -18,7 +18,7 @@ const props = defineProps<IProps>()
 
 <style lang='scss'>
 .button {
-  padding: 16px 24px;
+  padding: 12px 24px;
   background: #06a94d;
   color: #ffffff;
   transition: all .3s linear;
@@ -40,6 +40,15 @@ const props = defineProps<IProps>()
     border: 1px solid #06a94d;
     stroke: #06a94d;
     fill: #06a94d;
+  }
+
+  &--flat {
+    background: none;
+    border: none;
+
+    &:hover {
+      background: none;
+    }
   }
 
   &:hover {
