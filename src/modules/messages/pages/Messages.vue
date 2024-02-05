@@ -333,6 +333,7 @@ const messageImgSrc = computed(() => {
     &-preview {
       img {
         max-width: 300px;
+        max-height: 200px;
         border-radius: 8px;
       }
     }
