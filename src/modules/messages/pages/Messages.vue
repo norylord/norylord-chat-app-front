@@ -20,7 +20,7 @@
     />
     <form
       class="messages__inputs"
-      @submit.prevent="handleSendMessage()"
+      @submit.prevent="sendMessage()"
     >
       <div
         v-if="replyMessage"
@@ -105,8 +105,8 @@ import { useSocketStore } from '@/modules/socket/store'
 import { type IMessage } from '@/modules/messages/enitity/Messages.ts'
 import { UserService } from '@/modules/user/services/userService.ts'
 import MessagesList from '@/modules/messages/components/MessagesList.vue'
-import { setToLocalStorage } from '@/core/utils/localStorage.ts'
 import MessagesHeader from '@/modules/messages/components/MessagesHeader.vue'
+import { useMessages } from '@/modules/messages/composables/useMessages.ts'
 
 const socketStore = useSocketStore()
 const userStore = useUserStore()
@@ -117,12 +117,21 @@ onMounted(() => {
   socketService.initConnection()
 })
 
-const showUserList = ref(false)
-const fileInput = ref(null)
-const messageText = ref('')
-const messageList = ref(null)
-const messageImg = ref(null)
-const replyMessage = ref<IMessage>(null)
+const {
+  showUserList,
+  messages,
+  fileInput,
+  messageText,
+  messageList,
+  messageImg,
+  replyMessage,
+  sendMessage,
+  handleOpenUserList,
+  handleReplyMessage,
+  handleUploadImg,
+  handleOpenFileInput,
+  messageImgSrc
+} = useMessages()
 
 onMounted(() => {
   window.addEventListener('beforeunload', handleBeforeUnload)
@@ -139,32 +148,6 @@ const handleBeforeUnload = () => {
   socketService.sendMessage(unconnectedMessage)
 }
 
-const handleSendMessage = () => {
-  if ((messageText.value.length === 0 && messageText.value.length > 500)) {
-    messageText.value = ''
-    if (!messageImg.value) {
-      return
-    }
-  }
-  let newMessage: IMessage = {
-    id: Date.now(),
-    message: messageText.value.trim(),
-    event: 'message',
-    time: new Date().getTime(),
-    username: userService.getUsername(),
-    usernameId: userService.getUsernameId()
-  }
-  if (replyMessage.value) {
-    newMessage = { ...newMessage, reply_message: replyMessage.value }
-  }
-  if (messageImg.value) {
-    newMessage = { ...newMessage, message_img: messageImg.value }
-  }
-  replyMessage.value = null
-  messageImg.value = null
-  messageText.value = ''
-  socketService.sendMessage(newMessage)
-}
 const isMessageListScrollFreeze = ref(false)
 const handleScrollMessageList = () => {
   if (messageList.value) {
@@ -175,7 +158,8 @@ const handleScrollMessageList = () => {
     }
   }
 }
-watch(() => userStore.messages.length, () => {
+
+watch(() => messages, () => {
   setTimeout(() => {
     if (isMessageListScrollFreeze.value) {
       messageList.value.scrollTop = messageList.value.scrollHeight
@@ -192,44 +176,6 @@ onMounted(() => {
   setTimeout(() => {
     messageList.value.scrollTop = messageList.value.scrollHeight
   }, 300)
-})
-
-const isUsernameUpdating = ref(false)
-const handleConfirmUsernameUpdating = (username: string) => {
-  setToLocalStorage('username', username)
-  username = username.trim().replaceAll('"', '')
-  if (username.length === 0) {
-    return
-  }
-  userService.setUsername(username)
-  isUsernameUpdating.value = false
-}
-
-const handleOpenUserList = () => showUserList.value = !showUserList.value
-
-const handleReplyMessage = (message: IMessage) => {
-  replyMessage.value = message
-}
-
-const handleUploadImg = (element: any) => {
-  const file = element.target.files[0]
-  const reader = new FileReader()
-  reader.onloadend = function () {
-    console.log(reader.result)
-    messageImg.value = reader.result
-  }
-  reader.readAsDataURL(file)
-}
-
-const handleOpenFileInput = () => {
-  fileInput.value.click()
-}
-
-const messageImgSrc = computed(() => {
-  if (!messageImg.value) return null
-  const image = new Image()
-  image.src = messageImg.value
-  return image
 })
 </script>
 
