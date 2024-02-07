@@ -14,7 +14,6 @@ export const useMessages = () => {
   const socketService = new SocketService(socketStore, userStore)
 
   const showUserList = ref(false)
-  const fileInput = ref<HTMLElement | null>(null)
   const messageText = ref('')
   const messageList = ref(null)
   const messageImg = ref<string | null>(null)
@@ -57,22 +56,6 @@ export const useMessages = () => {
     replyMessage.value = message
   }
 
-  const handleUploadImg = (element: any) => {
-    const file = element.target.files[0]
-    const reader = new FileReader()
-    reader.onloadend = function () {
-      console.log(reader.result)
-      messageImg.value = reader.result as string
-    }
-    reader.readAsDataURL(file)
-  }
-
-  const handleOpenFileInput = () => {
-    if (fileInput.value) {
-      fileInput.value.click()
-    }
-  }
-
   const messageImgSrc = computed(() => {
     if (!messageImg.value) return null
     const image = new Image()
@@ -94,7 +77,6 @@ export const useMessages = () => {
   return {
     showUserList,
     messages,
-    fileInput,
     messageText,
     messageList,
     messageImg,
@@ -102,8 +84,6 @@ export const useMessages = () => {
     isUsernameUpdating,
     handleOpenUserList,
     handleReplyMessage,
-    handleUploadImg,
-    handleOpenFileInput,
     handleConfirmUsernameUpdating,
     messageImgSrc,
     sendMessage

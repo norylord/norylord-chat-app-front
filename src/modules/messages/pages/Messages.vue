@@ -18,87 +18,21 @@
       @scroll="handleScrollMessageList()"
       @reply="(v: IMessage) => handleReplyMessage(v)"
     />
-    <form
-      class="messages__inputs"
-      @submit.prevent="sendMessage()"
-    >
-      <div
-        v-if="replyMessage"
-        class="messages__inputs-reply"
-      >
-        <div>
-          <h3>В ответ: {{ replyMessage.username }}</h3>
-          <p>{{ replyMessage.message }}</p>
-        </div>
-        <img
-          src="@/core/assets/icons/cross.svg"
-          alt=""
-          width="24"
-          @click="replyMessage = null"
-        >
-      </div>
-      <div
-        v-if="messageImg"
-        class="messages__inputs-preview"
-      >
-        <img
-          :src="messageImgSrc.src"
-          alt=""
-          @click="replyMessage = null"
-        >
-      </div>
-      <ui-input
-        v-model="messageText"
-        class="messages__inputs-input"
-        placeholder="Введите сообщение"
-      >
-        <template
-          v-if="messageText.length || messageImg"
-          #prepend
-        >
-          <ui-button
-            type="submit"
-            class="messages__inputs-btn"
-          >
-            <img
-              src="@/core/assets/icons/send.svg"
-              width="16"
-              alt=""
-            >
-          </ui-button>
-        </template>
-        <template
-          v-else
-          #prepend
-        >
-          <ui-button
-            variant="flat"
-            class="messages__inputs-btn"
-            @click.prevent="handleOpenFileInput"
-          >
-            <img
-              src="@/core/assets/icons/image.svg"
-              width="24"
-              alt=""
-            >
-          </ui-button>
-        </template>
-      </ui-input>
-      <input
-        v-show="false"
-        ref="fileInput"
-        type="file"
-        @change="handleUploadImg"
-      >
-    </form>
+    <MessagesInput
+      v-model:message-text="messageText"
+      v-model:reply-message="replyMessage"
+      v-model:message-img="messageImg"
+      :message-img-src="messageImgSrc"
+      @clear-reply="replyMessage = null"
+      @open-file-input="handleOpenFileInput"
+      @send-message="sendMessage"
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
 
-import { computed, onMounted, ref, watch } from 'vue'
-import UiInput from '@/core/components/ui/ui-input.vue'
-import UiButton from '@/core/components/ui/ui-button.vue'
+import { onMounted, ref, watch } from 'vue'
 import { useUserStore } from '@/modules/user/store'
 import { SocketService } from '@/modules/socket/service/socketService.ts'
 import { useSocketStore } from '@/modules/socket/store'
@@ -107,6 +41,7 @@ import { UserService } from '@/modules/user/services/userService.ts'
 import MessagesList from '@/modules/messages/components/MessagesList.vue'
 import MessagesHeader from '@/modules/messages/components/MessagesHeader.vue'
 import { useMessages } from '@/modules/messages/composables/useMessages.ts'
+import MessagesInput from '@/modules/messages/components/MessagesInput.vue'
 
 const socketStore = useSocketStore()
 const userStore = useUserStore()
@@ -120,7 +55,7 @@ onMounted(() => {
 const {
   showUserList,
   messages,
-  fileInput,
+  isUsernameUpdating,
   messageText,
   messageList,
   messageImg,
@@ -128,8 +63,7 @@ const {
   sendMessage,
   handleOpenUserList,
   handleReplyMessage,
-  handleUploadImg,
-  handleOpenFileInput,
+  handleConfirmUsernameUpdating,
   messageImgSrc
 } = useMessages()
 
